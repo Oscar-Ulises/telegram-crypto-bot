@@ -1,59 +1,72 @@
-from binance import Client
-import requests
-import pandas as pd
+import ta 
 import time
 import math
-import ta 
+import requests
+import pandas as pd
 
-client = Client('mSXhgDL9CiFYZ6meCfUhJ4dJo1eqg9tU5NRejLV4yxAyLCKjT9IVD4hnFQKWZZuQ','R6mUZD1Ck4gmbCVIvMbPNvFAOPzFxYtM0biYIYiQf1nHqTuDn16jpvuz2quGcZ3g')
+from binance import Client
+
+client = Client('','') #Binance ID and token
 
 # Funciones
-def telegram_bot_sendtext(bot_message):   
-    bot_token = '2144404594:AAHuHI3gmo1s1sNRXPm07n3tF02xsYbZ8Wk'
-    bot_chatID = '1329401409'
+def telegram_bot_sendtext(bot_message):  
+    
+    bot_token = ''
+    bot_chatID = ''
     send_text = 'https://api.telegram.org/bot'+ bot_token + '/sendMessage?chat_id=' + bot_chatID + '&parse_mode=Markdown&text=' + bot_message
     response = requests.get(send_text)
+    
     return response.json()
 
 def applytechnicals(df):
+    
     df['K'] = ta.momentum.stoch(df.High,df.Low,df.Close,window=14,smooth_window=3)
     df['D'] = df['K'].rolling(3).mean()
     df['UpperBand'] = df['Close'].rolling(150).mean() + df['Close'].rolling(150).std() * 1
     df['LowerBand'] = df['Close'].rolling(150).mean() - df['Close'].rolling(150).std() * 1
     df.dropna(inplace=True)
+    
     return df
 
-def getdaydata(symbol):      
+def getdaydata(symbol):     
+    
     frame = pd.DataFrame(client.get_historical_klines(symbol,'15m','24 hours ago UTC'))
     frame = frame.iloc[:,:6]
     frame.columns = ['Time','Open','High','Low','Close','Volume']
     frame = frame.set_index('Time')
     frame.index = pd.to_datetime(frame.index,unit='ms')
     frame = frame.astype(float) 
+    
     return frame
 
-def getminutedata(symbol):      
+def getminutedata(symbol): 
+    
     frame = pd.DataFrame(client.get_historical_klines(symbol,'1m','200min ago UTC'))
     frame = frame.iloc[:,:6]
     frame.columns = ['Time','Open','High','Low','Close','Volume']
     frame = frame.set_index('Time')
     frame.index = pd.to_datetime(frame.index,unit='ms')
     frame = frame.astype(float) 
+    
     return frame
 
 def rend(df):
+    
     rendimiento = ((df.iloc[95,3] - df.iloc[0,0])/df.iloc[0,0])*100
+    
     return rendimiento
         
 crypto = ['API3USDT','FXSUSDT','ALCXUSDT','GLMRUSDT','BICOUSDT','PLAUSDT','KP3RUSDT','VGXUSDT','CVXUSDT','SCRTUSDT','IMXUSDT','ACHUSDT','LOKAUSDT','MCUSDT','JOEUSDT','ANCUSDT','RNDRUSDT','OOKIUSDT','FLUXUSDT','VOXELUSDT','PYRUSDT','MOVRUSDT','POWRUSDT','QIUSDT','ROSEUSDT','TVKUSDT','ENSUSDT','TLMUSDT','CHESSUSDT','JASMYUSDT','ZECUSDT','DEXEUSDT','CELRUSDT','LINAUSDT','CVCUSDT','RAREUSDT','EGLDUSDT','FISUSDT','MASKUSDT','IOTXUSDT','OCEANUSDT','ZENUSDT','CELOUSDT','FRONTUSDT','GALAUSDT','BURGERUSDT','STPTUSDT','INJUSDT','LTOUSDT','FLOWUSDT','STXUSDT','ICXUSDT','FORUSDT','TOMOUSDT','CFXUSDT','TRUUSDT','SKLUSDT','ERNUSDT','PERLUSDT','UNFIUSDT','FETUSDT','MDXUSDT','AVAUSDT','FLMUSDT','ANTUSDT','ATOMUSDT','REPUSDT','VTHOUSDT','UTKUSDT','DNTUSDT','FIDAUSDT','DASHUSDT','MBLUSDT','PNTUSDT','THETAUSDT','ALICEUSDT','MDTUSDT','NKNUSDT','CLVUSDT','ONEUSDT','WANUSDT','ONTUSDT','CTXCUSDT','AKROUSDT','ARPAUSDT','IOTAUSDT','TFUELUSDT','SXPUSDT','FUNUSDT','GTCUSDT','RADUSDT','ADXUSDT','TRIBEUSDT','PERPUSDT','AIONUSDT','DCRUSDT','ONGUSDT','WINGUSDT','PHAUSDT','NMRUSDT','IOSTUSDT','ILVUSDT','FARMUSDT','CRVUSDT','QTUMUSDT','HOTUSDT','ATAUSDT','DATAUSDT','CTKUSDT','PONDUSDT','SUPERUSDT','IRISUSDT','KAVAUSDT','LINKUSDT','SCUSDT','XMRUSDT','AUCTIONUSDT','LSKUSDT','LPTUSDT','TROYUSDT','AUTOUSDT','DIAUSDT','BNTUSDT','CVPUSDT','RAYUSDT','SLPUSDT','RSRUSDT','DOCKUSDT','YFIIUSDT','YFIUSDT','C98USDT','FORTHUSDT','MTLUSDT','SRMUSDT','BARUSDT','ASRUSDT','BELUSDT','REEFUSDT','SYSUSDT','MINAUSDT','ANKRUSDT','HBARUSDT','AXSUSDT','TWTUSDT','LITUSDT','DGBUSDT','KLAYUSDT','GNOUSDT','MIRUSDT','AAVEUSDT','ALGOUSDT','TRXUSDT','BTGUSDT','XEMUSDT','ALPHAUSDT','NBSUSDT','QUICKUSDT','XLMUSDT','MFTUSDT','ELFUSDT','ETCUSDT','DFUSDT','ARDRUSDT','AUDIOUSDT','HARDUSDT','BCHUSDT','KMDUSDT','FILUSDT','BEAMUSDT','VITEUSDT','XVSUSDT','UNIUSDT','DODOUSDT','RVNUSDT','TRBUSDT','WAVESUSDT','ZILUSDT','WRXUSDT','GTOUSDT','RLCUSDT','FTTUSDT','SUSHIUSDT','STRAXUSDT','RIFUSDT','COSUSDT','EOSUSDT','NULSUSDT','NEOUSDT','REQUSDT','JSTUSDT','CKBUSDT','NEARUSDT','ZRXUSDT','TORNUSDT','XECUSDT','WINUSDT','COMPUSDT','ALPACAUSDT','BTSUSDT','BAKEUSDT','GRTUSDT','HNTUSDT','BLZUSDT','BALUSDT','BATUSDT','SNXUSDT','COTIUSDT','BANDUSDT','ORNUSDT','CHZUSDT','POLYUSDT','OXTUSDT','KNCUSDT','MATICUSDT','STMXUSDT','POLSUSDT','SFPUSDT','FTMUSDT','QNTUSDT','BONDUSDT','IDEXUSDT','TKOUSDT','ICPUSDT','FIOUSDT','GHSTUSDT','MANAUSDT','OMGUSDT','UMAUSDT','VETUSDT','ARUSDT','SUNUSDT','ENJUSDT','OGNUSDT','WNXMUSDT','MKRUSDT','RENUSDT','CAKEUSDT','SANDUSDT','DEGOUSDT','XVGUSDT','DENTUSDT','BADGERUSDT','RUNEUSDT','XTZUSDT','CHRUSDT','HIVEUSDT','DYDXUSDT','WTCUSDT','STORJUSDT','VIDTUSDT','TCTUSDT','CTSIUSDT','BETAUSDT','KEYUSDT','AGLDUSDT','DARUSDT','MBOXUSDT','YGGUSDT','DREPUSDT','MITHUSDT','COCOSUSDT']
 
 def getnames(cryptos):
+    
     crypto_prices = [rend(getdaydata(i)) for i in cryptos]
     names = pd.DataFrame(crypto_prices)
     names.columns = ['rendimientos']
     names['names'] = crypto
     names = names.sort_values(by=['rendimientos'], ascending=False)
     names = list(names.iloc[0:5,1])
+    
     return names
 
 while True:
@@ -122,34 +135,6 @@ while True:
       time.sleep(1)    
      
 
-
-# =============================================================================
-# def getdaydata(symbol):      
-#     frame = pd.DataFrame(client.get_historical_klines(symbol,'1d','30 days ago UTC'))
-#     frame = frame.iloc[:,:6]
-#     frame.columns = ['Time','Open','High','Low','Close','Volume']
-#     frame = frame.set_index('Time')
-#     frame.index = pd.to_datetime(frame.index,unit='ms')
-#     frame = frame.astype(float) 
-#     return frame
-# 
-# 
-# def getnames(cryptos):
-#     crypto_prices = [rend(getdaydata(i)) for i in cryptos]
-#     names = pd.DataFrame(crypto_prices)
-#     names.columns = ['rendimientos']
-#     names['names'] = crypto
-#     names = names.sort_values(by=['rendimientos'], ascending=False)
-#     names = list(names.iloc[0:15,1])
-#     return names
-# 
-# def rend(df):
-#     rendimiento = ((df.iloc[26,3] - df.iloc[26,0])/df.iloc[26,0])*100
-#     return rendimiento
-# 
-# getnames(crypto)
-# 
-# =============================================================================
 
 
 
